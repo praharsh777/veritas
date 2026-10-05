@@ -1,0 +1,4 @@
+From: accounts@northwind-supplies.co
+Subject: Updated payment instructions - Invoice 4471
+
+Hi, as discussed, we have changed our bank account details. Please remit the outstanding balance of $18,450.00 for invoice 4471 to the new account below by end of day tomorrow. New routing number: 021000089, account 4400125512. Please keep this confidential until the payment clears and do not call our old line.

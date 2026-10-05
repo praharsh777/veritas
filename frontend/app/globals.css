@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Theme tokens (RGB triplets so Tailwind opacity modifiers work) ---------- */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ink-950: 7 11 20;   --ink-900: 11 18 32;  --ink-800: 17 26 46;
+  --ink-700: 24 35 61;  --ink-600: 34 48 82;  --ink-500: 46 63 104;
+  --mist-100: 232 237 247; --mist-300: 182 194 219; --mist-400: 141 155 184; --mist-500: 108 122 153;
+  --brand-400: 94 234 212; --brand-500: 45 212 191; --brand-600: 20 184 166;
+  --risk-high: 248 113 113; --risk-mid: 251 191 36; --risk-low: 52 211 153;
+  --prov-obs: 125 211 252; --prov-rule: 196 181 253; --prov-ext: 110 231 183; --prov-ai: 252 211 77;
+  --card-shadow: 0 1px 0 rgb(255 255 255 / .03) inset, 0 12px 32px -16px rgb(0 0 0 / .6);
+  --orb-a: 45 212 191; --orb-b: 99 102 241;
+  --grid-line: 255 255 255;
+  --grid-alpha: .035;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ink-950: 243 246 251; --ink-900: 255 255 255; --ink-800: 255 255 255;
+  --ink-700: 237 241 247; --ink-600: 212 220 233; --ink-500: 170 184 206;
+  --mist-100: 15 23 42;   --mist-300: 51 65 85;   --mist-400: 90 105 128; --mist-500: 112 127 150;
+  --brand-400: 17 94 89;  --brand-500: 15 118 110; --brand-600: 15 118 110;
+  --risk-high: 200 30 30; --risk-mid: 161 98 7;   --risk-low: 4 120 87;
+  --prov-obs: 3 105 161;  --prov-rule: 109 40 217; --prov-ext: 4 120 87; --prov-ai: 161 98 7;
+  --card-shadow: 0 1px 2px rgb(15 23 42 / .06), 0 14px 32px -18px rgb(15 23 42 / .22);
+  --orb-a: 20 184 166; --orb-b: 99 102 241;
+  --grid-line: 15 23 42;
+  --grid-alpha: .05;
+}
+
+html { scroll-behavior: smooth; }
+html, body { background-color: rgb(var(--ink-950)); color: rgb(var(--mist-100)); }
+body {
+  background-image:
+    radial-gradient(900px 420px at 85% -10%, rgb(var(--orb-a) / .10), transparent),
+    radial-gradient(700px 420px at -10% 8%, rgb(var(--orb-b) / .09), transparent);
+  background-attachment: fixed;
+  transition: background-color .35s ease, color .35s ease;
+}
+::selection { background: rgb(var(--brand-500) / .3); }
+* { scrollbar-width: thin; scrollbar-color: rgb(var(--ink-500)) transparent; }
+
+@layer components {
+  .card { @apply rounded-2xl border border-ink-600/70 bg-ink-800/80 backdrop-blur-sm transition-all duration-300; box-shadow: var(--card-shadow); }
+  .card-hover { @apply hover:-translate-y-0.5 hover:border-brand-500/50; }
+  .btn { @apply inline-flex select-none items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100; }
+  .btn-primary { @apply btn bg-brand-500 text-ink-950 shadow-[0_8px_24px_-10px_rgb(var(--brand-500)/.7)] hover:-translate-y-0.5 hover:bg-brand-400 hover:shadow-[0_12px_28px_-10px_rgb(var(--brand-500)/.8)] disabled:hover:translate-y-0; }
+  .btn-ghost { @apply btn border border-ink-500 text-mist-100 hover:-translate-y-0.5 hover:border-brand-500/60 hover:bg-ink-700 disabled:hover:translate-y-0; }
+  .chip { @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium; }
+  .label { @apply text-xs font-semibold uppercase tracking-wider text-mist-400; }
+  .prov-obs { @apply border-prov-obs/40 bg-prov-obs/10 text-prov-obs; }
+  .prov-rule { @apply border-prov-rule/40 bg-prov-rule/10 text-prov-rule; }
+  .prov-ext { @apply border-prov-ext/40 bg-prov-ext/10 text-prov-ext; }
+  .prov-ai { @apply border-prov-ai/40 bg-prov-ai/10 text-prov-ai; }
+  .text-gradient { background-image: linear-gradient(100deg, rgb(var(--brand-500)), rgb(var(--prov-rule)), rgb(var(--brand-400)), rgb(var(--brand-500))); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; @apply animate-gradientShift; }
+  .bg-grid { background-image: linear-gradient(rgb(var(--grid-line) / var(--grid-alpha)) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--grid-line) / var(--grid-alpha)) 1px, transparent 1px); background-size: 44px 44px; -webkit-mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%); mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%); }
+  .skeleton { background-image: linear-gradient(90deg, rgb(var(--ink-700)) 25%, rgb(var(--ink-600) / .7) 50%, rgb(var(--ink-700)) 75%); background-size: 200% 100%; @apply animate-shimmer rounded-lg; }
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .stagger { animation: fadeUp .55s cubic-bezier(.2,.7,.2,1) both; }
+}
+
+/* Respect users who ask for less motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+  .reveal { opacity: 1; transform: none; }
+}
