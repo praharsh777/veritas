@@ -18,8 +18,28 @@ async function parse<T>(r: Response): Promise<T> {
   return r.json() as Promise<T>;
 }
 
-async function safeFetch(input: string, init?: RequestInit): Promise<Response> {
-  try { return await fetch(input, init); }
+// Random per-browser id so each visitor only sees their own history on a shared deployment. Not authentication.
+let memoryId: string | null = null;
+function clientId(): string {
+  const KEY = "veritas-client-id";
+  try {
+    let id = localStorage.getItem(KEY);
+    if (!id) {
+      id = (crypto.randomUUID?.() ?? `${Date.now()}${Math.random().toString(16).slice(2)}`).replace(/[^A-Za-z0-9_-]/g, "");
+      localStorage.setItem(KEY, id);
+    }
+    return id;
+  } catch {
+    // storage blocked: fall back to an id that lasts for this page load
+    if (!memoryId) memoryId = `m${Date.now()}${Math.random().toString(16).slice(2)}`.padEnd(20, "0");
+    return memoryId;
+  }
+}
+
+async function safeFetch(input: string, init: RequestInit = {}): Promise<Response> {
+  const headers = new Headers(init.headers);
+  headers.set("X-Client-Id", clientId());
+  try { return await fetch(input, { ...init, headers }); }
   catch { throw new ApiError("Cannot reach the VERITAS backend. Start it with `uvicorn app.main:app --port 8000`.", 0); }
 }
 

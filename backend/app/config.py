@@ -34,6 +34,8 @@ class Settings:
     database_path: str = os.getenv("DATABASE_PATH", str(BASE_DIR / "data" / "veritas.db"))
 
     # limits
+    rate_limit: int = int(os.getenv("RATE_LIMIT_PER_WINDOW", "30"))
+    rate_window_s: int = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "600"))
     max_text_chars: int = 20_000
     max_image_bytes: int = 6 * 1024 * 1024
     max_doc_bytes: int = 200 * 1024

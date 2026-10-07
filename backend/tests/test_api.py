@@ -100,3 +100,30 @@ def test_demo_fixture_screenshot_path(tmp_path, monkeypatch):
 def test_errors_do_not_leak_internals():
     r = client.get("/api/incidents/does-not-exist")
     assert r.status_code == 404 and "Traceback" not in r.text
+
+
+def test_history_is_isolated_per_client_id():
+    a = {"X-Client-Id": "a" * 24}
+    b = {"X-Client-Id": "b" * 24}
+    rep = client.post("/api/analyze", json={"text": "Your account is suspended, verify now at http://x.top"}, headers=a).json()
+    assert any(i["id"] == rep["id"] for i in client.get("/api/incidents", headers=a).json())
+    assert not any(i["id"] == rep["id"] for i in client.get("/api/incidents", headers=b).json())
+    assert client.get(f"/api/incidents/{rep['id']}", headers=b).status_code == 404
+    assert client.post(f"/api/incidents/{rep['id']}/feedback", json={"outcome": "was_scam"}, headers=b).status_code == 404
+    assert client.post(f"/api/incidents/{rep['id']}/retry-ai", headers=b).status_code == 404
+    assert client.delete("/api/incidents", headers=b).json()["deleted"] == 0
+    assert client.get(f"/api/incidents/{rep['id']}", headers=a).status_code == 200
+    # malformed ids fall back to the shared 'anon' bucket, never to someone else's
+    assert client.get(f"/api/incidents/{rep['id']}", headers={"X-Client-Id": "short"}).status_code == 404
+
+
+def test_rate_limit_blocks_bursts(monkeypatch):
+    from app import main
+    from app.config import settings
+    main._hits.clear()
+    monkeypatch.setattr(settings, "rate_limit", 3)
+    h = {"X-Forwarded-For": "203.0.113.77"}
+    codes = [client.post("/api/analyze", json={"text": "hello there friend"}, headers=h).status_code for _ in range(5)]
+    assert codes[:3] == [200, 200, 200] and codes[3:] == [429, 429]
+    assert client.get("/api/health", headers=h).status_code == 200  # only analysis endpoints are limited
+    main._hits.clear()

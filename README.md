@@ -34,6 +34,12 @@ transcription fixtures, so the 2–4 minute demo never depends on external servi
 
 Tests: `cd backend && pytest -q` (82 tests). Frontend type-check/build: `cd frontend && npm run build`.
 
+## Hosting (free tier)
+Frontend on **Vercel** (root directory `frontend`, env `BACKEND_URL=https://<your-render-service>.onrender.com`), backend on
+**Render** via `render.yaml` (add `OPENAI_COMPAT_API_KEY` and `OPENAI_COMPAT_MODEL` in the Render dashboard). Free Render
+services sleep after ~15 minutes idle (first request takes about a minute) and use an ephemeral disk, so history resets on
+restart. History is isolated per browser (random id in localStorage; not authentication), and analysis endpoints are rate-limited.
+
 ## UI notes
 Dark and light themes (toggle in the nav; follows your system setting on first visit and remembers your choice, with no flash on
 load). Colors are CSS-variable tokens in `frontend/app/globals.css`. Animations (animated risk ring, count-up, staggered report
