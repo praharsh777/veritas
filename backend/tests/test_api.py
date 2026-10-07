@@ -127,3 +127,8 @@ def test_rate_limit_blocks_bursts(monkeypatch):
     assert codes[:3] == [200, 200, 200] and codes[3:] == [429, 429]
     assert client.get("/api/health", headers=h).status_code == 200  # only analysis endpoints are limited
     main._hits.clear()
+
+
+def test_root_returns_friendly_info():
+    r = client.get("/")
+    assert r.status_code == 200 and r.json()["health"] == "/api/health"

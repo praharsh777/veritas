@@ -73,6 +73,12 @@ async def request_context(request: Request, call_next):
     return response
 
 
+@app.get("/", include_in_schema=False)
+async def root():
+    return {"service": "VERITAS API", "status": "ok", "health": "/api/health", "docs": "/api/docs",
+            "note": "This is the backend API. The web app is hosted separately."}
+
+
 @app.get("/api/health")
 async def health():
     p = get_provider()
