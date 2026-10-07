@@ -87,7 +87,7 @@ async def health():
         "ai_provider": p.name if p.available else "offline",
         "ai_enabled": p.available,
         "live_url_checks": settings.live_url_checks,
-        "vision_ocr": p.available and p.name == "anthropic",
+        "vision_ocr": p.supports_vision,
     }
 
 

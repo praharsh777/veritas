@@ -75,7 +75,7 @@ async def image_to_text(data: bytes, mime: str, provider: LLMProvider) -> tuple[
     fx = demo_fixture_for(data)
     if fx is not None:
         return fx, "demo_fixture", "Bundled demo screenshot: transcription is a pre-recorded fixture, not live OCR."
-    if provider.available:
+    if provider.supports_vision:
         try:
             txt = await provider.transcribe_image(data, mime)
             if txt.strip():

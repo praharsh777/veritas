@@ -132,3 +132,48 @@ def test_rate_limit_blocks_bursts(monkeypatch):
 def test_root_returns_friendly_info():
     r = client.get("/")
     assert r.status_code == 200 and r.json()["health"] == "/api/health"
+
+
+def test_screenshot_uses_vision_provider_when_available(monkeypatch):
+    from app import main, ocr
+
+    class FakeVision:
+        name = "fake"
+        available = True
+        supports_vision = True
+
+        async def transcribe_image(self, data, mime):
+            return "Chase Alert: Your account will be suspended in 30 minutes. Verify now at http://chase-secure-verify.top/login"
+
+        async def analyze(self, text, summ):
+            return None
+
+    monkeypatch.setattr(main, "get_provider", lambda: FakeVision())
+    monkeypatch.setattr(ocr, "DEMO_DIR", ocr.DEMO_DIR / "__none__")
+    r = client.post("/api/analyze/upload", files={"file": ("s.png", _png())})
+    assert r.status_code == 200
+    j = r.json()
+    assert j["input"]["ocr_method"] == "vision:fake" and j["risk"]["risk_level"] == "high_risk"
+
+
+def test_vision_models_fall_back_in_order(monkeypatch):
+    import asyncio
+
+    from app.config import settings
+    from app.providers import openai_compat as oc
+    from app.providers.base import ProviderError
+
+    monkeypatch.setattr(settings, "openai_api_key", "k")
+    monkeypatch.setattr(settings, "openai_model", "text-only")
+    monkeypatch.setattr(settings, "openai_vision_model", "no-vision,has-vision")
+    tried = []
+
+    async def fake_chat(self, model, messages, max_tokens, timeout=None):
+        tried.append(model)
+        if model == "no-vision":
+            raise ProviderError("no-vision: HTTP 400")
+        return "hello text"
+
+    monkeypatch.setattr(oc.OpenAICompatProvider, "_chat", fake_chat)
+    out = asyncio.run(oc.OpenAICompatProvider().transcribe_image(b"x", "image/png"))
+    assert out == "hello text" and tried == ["no-vision", "has-vision"]

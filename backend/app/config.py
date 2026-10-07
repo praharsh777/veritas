@@ -25,6 +25,7 @@ class Settings:
     openai_base_url: str = os.getenv("OPENAI_COMPAT_BASE_URL", "https://api.featherless.ai/v1").strip()
     openai_api_key: str = os.getenv("OPENAI_COMPAT_API_KEY", "").strip()
     openai_model: str = os.getenv("OPENAI_COMPAT_MODEL", "").strip()
+    openai_vision_model: str = os.getenv("OPENAI_COMPAT_VISION_MODEL", "").strip()
     live_url_checks: bool = _bool("ENABLE_LIVE_URL_CHECKS", False)
     cors_origins: list[str] = [
         o.strip()

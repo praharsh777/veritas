@@ -18,6 +18,10 @@ class AnthropicProvider(LLMProvider):
     def available(self) -> bool:
         return bool(settings.anthropic_api_key)
 
+    @property
+    def supports_vision(self) -> bool:
+        return bool(settings.anthropic_api_key)
+
     async def _post(self, body: dict) -> str:
         headers = {
             "x-api-key": settings.anthropic_api_key,

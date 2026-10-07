@@ -155,6 +155,10 @@ class LLMProvider:
     def available(self) -> bool:
         return False
 
+    @property
+    def supports_vision(self) -> bool:
+        return False
+
     async def analyze(self, text: str, extraction_summary: str) -> Optional[AIAnalysis]:
         return None
 
